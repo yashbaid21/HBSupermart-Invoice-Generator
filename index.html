@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBSupermart</title>
+    <link rel="icon" href="logo.jpg" type="image/x-icon">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        header h1 {
+            color: #007bff;
+        }
+
+        section {
+            margin-bottom: 20px;
+        }
+
+        h2 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        table th,
+        table td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+
+        table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .total-amount {
+            text-align: right;
+            margin-top: 10px;
+        }
+
+        .total-amount h3 {
+            color: #007bff;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>HBSupermart</h1>
+        </header>
+        <section class="customer-details">
+            <h2>Customer Details</h2>
+            <form id="customer-form">
+                <div class="form-group">
+                    <label for="customerName">Customer Name</label>
+                    <input type="text" id="customerName" placeholder="Enter Customer Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerMobile">Customer Mobile No</label>
+                    <input type="tel" id="customerMobile" placeholder="Enter Mobile Number" required>
+                </div>
+                <div class="form-group">
+                    <label for="customerAddress">Customer Address</label>
+                    <input type="text" id="customerAddress" placeholder="Enter Address" required>
+                </div>
+                <div class="form-group">
+                    <label for="billingDate">Billing Date</label>
+                    <input type="date" id="billingDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="billingTime">Billing Time</label>
+                    <input type="time" id="billingTime" required>
+                </div>
+            </form>
+        </section>
+        <section class="product-management">
+            <h2>Service / Product Management</h2>
+            <form id="product-form">
+                <div class="form-group">
+                    <label for="productName">Service / Product Name</label>
+                    <input type="text" id="productName" placeholder="Enter Product Name" required>
+                </div>
+                <div class="form-group">
+                    <label for="productPrice">Service / Product Price (₹)</label>
+                    <input type="number" id="productPrice" placeholder="Enter Price" required>
+                </div>
+                <div class="form-group">
+                    <label for="productQuantity">Quantity</label>
+                    <input type="number" id="productQuantity" placeholder="Enter Quantity" required>
+                </div>
+                <button type="button" id="addToList">Add to List</button>
+            </form>
+        </section>
+        <section class="bill-summary">
+            <h2>Bill Summary</h2>
+            <table id="billTable">
+                <thead>
+                    <tr>
+                        <th>Service / Product Name</th>
+                        <th>Price (₹)</th>
+                        <th>Quantity</th>
+                        <th>Total (₹)</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <div class="total-amount">
+                <h3>Total: ₹<span id="totalAmount">0.00</span></h3>
+            </div>
+            <button id="downloadBill">Download PDF</button>
+        </section>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
+        const billTableBody = document.querySelector('#billTable tbody');
+        const totalAmountSpan = document.getElementById('totalAmount');
+        const downloadBillButton = document.getElementById('downloadBill');
+        let totalAmount = 0;
+
+        document.getElementById('addToList').addEventListener('click', () => {
+            const productName = document.getElementById('productName').value;
+            const productPrice = parseFloat(document.getElementById('productPrice').value);
+            const productQuantity = parseInt(document.getElementById('productQuantity').value);
+
+            if (productName && productPrice && productQuantity) {
+                const productTotal = productPrice * productQuantity;
+                totalAmount += productTotal;
+
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${productName}</td>
+                    <td>₹${productPrice.toFixed(2)}</td>
+                    <td>${productQuantity}</td>
+                    <td>₹${productTotal.toFixed(2)}</td>
+                `;
+                billTableBody.appendChild(row);
+
+                totalAmountSpan.textContent = totalAmount.toFixed(2);
+
+                document.getElementById('productName').value = '';
+                document.getElementById('productPrice').value = '';
+                document.getElementById('productQuantity').value = '';
+            } else {
+                alert('Please fill in all product fields.');
+            }
+        });
+
+        downloadBillButton.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF();
+
+            const customerName = document.getElementById('customerName').value;
+            const customerMobile = document.getElementById('customerMobile').value;
+            const customerAddress = document.getElementById('customerAddress').value;
+            const billingDate = document.getElementById('billingDate').value;
+            const billingTime = document.getElementById('billingTime').value;
+
+            if (!customerName || !customerMobile || !customerAddress || !billingDate || !billingTime) {
+                alert('Please complete customer details.');
+                return;
+            }
+
+            const storeName = "HBSupermart";
+            const sellerAddress = "Ground Floor, Ashirwad Plaza";
+            const sellerContact = "Phone: +91 8118872389";
+
+            let y = 20;
+            pdf.setFontSize(16);
+            pdf.text(storeName, 105, y, { align: 'center' });
+            y += 10;
+            pdf.setFontSize(10);
+            pdf.text(`Address: ${sellerAddress}`, 20, y);
+            y += 5;
+            pdf.text(`${sellerContact}`, 20, y);
+            y += 10;
+            pdf.setFontSize(12);
+            pdf.text(`Customer Name: ${customerName}`, 20, y);
+            pdf.text(`Mobile: ${customerMobile}`, 150, y);
+            y += 5;
+            pdf.text(`Address: ${customerAddress}`, 20, y);
+            pdf.text(`Date: ${billingDate}`, 150, y, { align: 'right' });
+            y += 5;
+            pdf.text(`Billing Time: ${billingTime}`, 20, y);
+            y += 10;
+            pdf.text('Product Name', 20, y);
+            pdf.text('Price (₹)', 80, y);
+            pdf.text('Quantity', 130, y);
+            pdf.text('Total (₹)', 180, y);
+            y += 5;
+            pdf.setLineWidth(0.5);
+            pdf.line(20, y, 190, y);
+            y += 5;
+
+            billTableBody.querySelectorAll('tr').forEach(row => {
+                const cells = row.querySelectorAll('td');
+                pdf.text(cells[0].textContent, 20, y);
+                pdf.text(cells[1].textContent, 80, y);
+                pdf.text(cells[2].textContent, 130, y);
+                pdf.text(cells[3].textContent, 180, y);
+                y += 5;
+            });
+
+            y += 10;
+            pdf.setFontSize(12);
+            pdf.text(`Total Amount: ₹${totalAmount.toFixed(2)}`, 20, y);
+            y += 20;
+            pdf.setFontSize(10);
+            pdf.text('Thank you for shopping with us and Download our App from PlayStore!', 105, y, { align: 'center' });
+            pdf.save(`HBSupermartBill.pdf`);
+        });
+    </script>
+</body>
+
+</html>
