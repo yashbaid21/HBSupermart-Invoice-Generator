@@ -234,10 +234,10 @@
             pdf.text(`Customer Name: ${customerName}`, 20, y);
             pdf.text(`Mobile: ${customerMobile}`, 150, y);
             y += 5;
-            pdf.text(`Address: ${customerAddress}`, 20, y);
-            pdf.text(`Date: ${billingDate}`, 150, y, { align: 'right' });
-            y += 5;
             pdf.text(`Billing Time: ${billingTime}`, 20, y);
+            pdf.text(`Date: ${billingDate}`, 150, y);
+            y += 5;
+            pdf.text(`Address: ${customerAddress}`, 20, y);
             y += 10;
             pdf.text('Product Name', 20, y);
             pdf.text('Price (₹)', 80, y);
